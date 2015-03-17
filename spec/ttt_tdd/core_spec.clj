@@ -16,19 +16,24 @@
               (should= true (game-over? '(5 1 9 2 7 3)))
               (should= true (game-over? '(1 2 3 5 4 6 9 8)))))
 
-(describe "x-moves"
+(describe "player-moves"
+          (it "returns the moves for the player to make the LAST move on board"
+              (should= '(1 3 5) (player-moves '(1 2 3 4 5)))
+              (should= '(2 4 6) (player-moves '(1 2 3 4 5 6)))))
+
+#_(describe "x-moves"
           (it "returns x's moves given a board"
               (should= (x-moves full-board)
                        '(1 3 5 7 9))))
 
 (describe "score-win-or-draw"
-          (it "returns the winner if there exists one on the board.
-which should be 1 if :x wins on that board, -1 if :o wins"
+          (it "returns 1 if the player to make the LAST move has won,
+0 if the player has drawn, otherwise nil"
               (should= 1 (score-win-or-draw '(1 2 3 5 6 7 9)))
-              (should= -1 (score-win-or-draw '(1 2 3 5 4 6 9 8)))
+              (should= 1 (score-win-or-draw '(1 2 3 5 4 6 9 8)))
               (should= nil (score-win-or-draw '()))
-              (should= 1 (score-win-or-draw '(1 4 2 5 3 7)))
-              (should= -1 (score-win-or-draw '(1 2 3 5 6 8)))
+              (should= 1 (score-win-or-draw '(1 4 2 5 3)))
+              (should= 1 (score-win-or-draw '(1 2 3 5 6 8)))
               (should= 0 (score-win-or-draw '(1 2 3 5 4 6 8 7 9)))))
 
 (describe "score-board"
@@ -38,7 +43,7 @@ b) otherwise: (max or min) score of the all the next available boards"
               (should= 1 (score-board '(1 2 3 4 5 6 7 8 9)))
               (should= 5 (score-board '(1 4 2 8 3)))
               (should= 0 (score-board '(1 2 3 5 4 6 8 7 9)))
-              (should= 5 (score-board '(1 4 2 8)))
+              (should= -5 (score-board '(1 4 2 8)))
               (should= -4 (score-board '(5 1 9 2 7)))
               (should= 0 (score-board '(1 5)))))
 
