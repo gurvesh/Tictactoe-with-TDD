@@ -10,14 +10,17 @@
 (defn available-moves [board]
   (remove #((set board) %) full-board))
 
-(defn player-moves [board]
-  (if (odd? (count board))
-    (take-nth 2 board)
-    (take-nth 2 (drop 1 board))))
+(defn x-moves [board]
+  (take-nth 2 board))
+
+(defn o-moves [board]
+  (take-nth 2 (drop 1 board)))
 
 (defn check-player-wins [board]
-  (some #(sets/subset? % (set (player-moves board)))
-        wins))
+  (or (some #(sets/subset? % (set (x-moves board)))
+            wins)
+      (some #(sets/subset? % (set (o-moves board)))
+            wins)))
 
 (defn draw? [board]
   (empty? (available-moves board)))
@@ -27,27 +30,26 @@
     (check-player-wins board) 1
     (draw? board) 0))
 
-(defn game-over? [board]
-  (boolean (score-win-or-draw board)))
-
 (defn all-next-boards [board]
   (for [a (available-moves board)]
     (concat board (list a))))
 
-(defn score-board [board]
-  (if-let [win-or-draw (score-win-or-draw board)]
-    (* (- 10 (count board))
-       win-or-draw)
-    (- (reduce max
-               (map score-board (all-next-boards board))))))
+(defn next-scored-boards [board]
+  (for [a-board (all-next-boards board)]
+    {:board a-board
+     :score (if-let [win-or-draw (score-win-or-draw a-board)]
+              (* (- 10 (count a-board))
+                 win-or-draw)
+              (->> (next-scored-boards a-board)
+                   (apply max-key :score)
+                   :score
+                   -))}))
 
 (defn next-board [board]
   (if (score-win-or-draw board)
-    nil
-    (let [all-boards (all-next-boards board)]
-      (->> (map score-board all-boards)
-           (zipmap all-boards)
-           (apply max-key val)
-           key))))
+    :game-over
+    (->> (next-scored-boards board)
+         (apply max-key :score)
+         :board)))
 
 (def mem-next-board (memoize next-board))
