@@ -22,8 +22,7 @@
                        '(1 3 5 7 9))))
 
 (describe "score-win-or-draw"
-          (it "returns 1 if the player to make the LAST move has won,
-0 if the player has drawn, otherwise nil"
+          (it "returns 1 if a player has won, or 0 if draw"
               (should= 1 (score-win-or-draw '(1 2 3 5 6 7 9)))
               (should= 1 (score-win-or-draw '(1 2 3 5 4 6 9 8)))
               (should= nil (score-win-or-draw '()))
