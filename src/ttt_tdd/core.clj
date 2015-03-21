@@ -2,25 +2,19 @@
   (:require [clojure.repl :refer :all]
             [clojure.set :as sets]))
 
+(declare mem-next-scored-boards)
+
 (def full-board (range 1 10))
 
 (def wins #{#{1 2 3} #{4 5 6} #{7 8 9} #{1 4 7}
             #{2 5 8} #{3 6 9} #{1 5 9} #{3 5 7}})
 
-(defn available-moves [board]
-  (remove #((set board) %) full-board))
+(defn available-moves [{:keys [x-moves o-moves]}]
+  (sets/difference (set full-board) x-moves o-moves))
 
-(defn x-moves [board]
-  (take-nth 2 board))
-
-(defn o-moves [board]
-  (take-nth 2 (drop 1 board)))
-
-(defn check-player-wins [board]
-  (or (some #(sets/subset? % (set (x-moves board)))
-            wins)
-      (some #(sets/subset? % (set (o-moves board)))
-            wins)))
+(defn check-player-wins [{:keys [x-moves o-moves]}]
+  (or (some #(sets/subset? % x-moves) wins)
+      (some #(sets/subset? % o-moves) wins)))
 
 (defn draw? [board]
   (empty? (available-moves board)))
@@ -30,26 +24,30 @@
     (check-player-wins board) 1
     (draw? board) 0))
 
-(defn all-next-boards [board]
+(defn all-next-boards [{:keys [x-moves o-moves] :as board}]
   (for [a (available-moves board)]
-    (concat board (list a))))
+    (if (= (count x-moves) (count o-moves))
+      {:x-moves (conj x-moves a)
+       :o-moves o-moves}
+      {:x-moves x-moves
+       :o-moves (conj o-moves a)})))
 
 (defn next-scored-boards [board]
   (for [a-board (all-next-boards board)]
     {:board a-board
      :score (if-let [win-or-draw (score-win-or-draw a-board)]
-              (* (- 10 (count a-board))
+              (* (inc (count (available-moves board)))
                  win-or-draw)
-              (->> (next-scored-boards a-board)
+              (->> (mem-next-scored-boards a-board)
                    (apply max-key :score)
                    :score
                    -))}))
 
+(def mem-next-scored-boards (memoize next-scored-boards))
+
 (defn next-board [board]
   (if (score-win-or-draw board)
     :game-over
-    (->> (next-scored-boards board)
+    (->> (mem-next-scored-boards board)
          (apply max-key :score)
          :board)))
-
-(def mem-next-board (memoize next-board))
