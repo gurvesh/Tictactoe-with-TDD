@@ -39,21 +39,18 @@
   board)
 
 (defn computer-play [board]
-  (let [next-board (next-board board)]
-    (when (not= next-board :game-over)
-      (print-board next-board))))
+  (print-board (next-board board)))
 
 (defn human-play [board]
-  (let [available-moves (available-moves board)]
-    (when (seq available-moves)
-      (let [new-move (get-input-as-integer
-                      (apply str
-                             "Please enter a move from these available moves: "
-                             (interleave (sort available-moves)
-                                         (repeat " "))))]
-        (if (check-input-is-valid new-move available-moves)
-          (print-board (add-move-to-board new-move board))
-          (recur board))))))
+  (let [available-moves (available-moves board)
+        new-move (get-input-as-integer
+                  (apply str
+                         "Please enter a move from these available moves: "
+                         (interleave (sort available-moves)
+                                     (repeat " "))))]
+    (if (check-input-is-valid new-move available-moves)
+      (print-board (add-move-to-board new-move board))
+      (recur board))))
 
 (def computer-start (cycle [computer-play human-play]))
 (def human-start (drop 1 computer-start))
