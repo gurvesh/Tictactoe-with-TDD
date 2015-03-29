@@ -113,5 +113,5 @@ the next player to move"
                                                   :o-moves #{6 7 8 9}})))
               (should= "GAME OVER\n\n"
                        (with-out-str
-                         (chain-play computer-start{:x-moves #{1 2 3 4 5}
-                                                    :o-moves #{6 7 8 9}})))))
+                         (chain-play computer-start {:x-moves #{1 2 3 4 5}
+                                                     :o-moves #{6 7 8 9}})))))
