@@ -37,13 +37,13 @@
            (subs printable-board 6 11)
            (subs printable-board 12)]))
        (#(apply str (interleave % (repeat "\n"))))
-       println))
+       println)
+  board)
 
 (defn computer-play [board]
   (let [next-board (next-board board)]
     (when (not= next-board :game-over)
-      (do (print-board next-board)
-          next-board))))
+      (print-board next-board))))
 
 (defn human-play [board]
   (let [available-moves (available-moves board)]
@@ -55,8 +55,7 @@
                                          (repeat " "))))]
         (if (check-input-is-valid new-move available-moves)
           (let [next-board (add-move-to-board new-move board)]
-            (print-board next-board)
-            next-board)
+            (print-board next-board))
           (recur board))))))
 
 (def computer-start (cycle [computer-play human-play]))
