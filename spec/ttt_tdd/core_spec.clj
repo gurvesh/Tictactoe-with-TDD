@@ -88,10 +88,6 @@ and returns the board"
               (should= :game-over (computer-play
                                    {:x-moves #{1 2 3 4 5}
                                     :o-moves #{6 7 8 9}}))
-              #_(should= "GAME OVER\n"
-                       (with-out-str
-                         (computer-play {:x-moves #{1 2 3 4 5}
-                                                :o-moves #{6 7 8 9}})))
               (should= {:x-moves #{1 3 5 9}
                         :o-moves #{2 4 7}}
                        (computer-play {:x-moves #{1 3 5}
@@ -103,14 +99,19 @@ and returns the board"
 
 (describe "human-play"
           (it "returns the next-board after printing it, on the human's move"
-              #_(should= nil (human-play
-                                   {:x-moves #{1 2 3 4 5}
-                                    :o-moves #{6 7 8 9}}))
-              #_(should= "GAME OVER\n"
-                       (with-out-str
-                         (computer-play {:x-moves #{1 2 3 4 5}
-                                         :o-moves #{6 7 8 9}})))
               (should= {:x-moves #{1 2 3} :o-moves #{4 5}}
                        (with-in-str "hi\nhi\nhi\n120\n3"
                          (human-play {:x-moves #{1 2}
                                       :o-moves #{4 5}})))))
+
+(describe "chain-play"
+          (it "checks if the board is already over. If it isn't - it gets
+the next player to move"
+              (should= "GAME OVER\n\n"
+                       (with-out-str
+                         (chain-play human-start {:x-moves #{1 2 3 4 5}
+                                                  :o-moves #{6 7 8 9}})))
+              (should= "GAME OVER\n\n"
+                       (with-out-str
+                         (chain-play computer-start{:x-moves #{1 2 3 4 5}
+                                                    :o-moves #{6 7 8 9}})))))
