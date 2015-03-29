@@ -3,8 +3,7 @@
                                 next-board
                                 available-moves
                                 add-move-to-board
-                                score-win-or-draw]]
-            [clojure.string :as s]))
+                                score-win-or-draw]]))
 
 (defn get-input-as-integer [prompt-string]
   (try (do (println prompt-string)
@@ -19,7 +18,7 @@
   (apply assoc vec-board (interleave (map dec moves)
                                  (repeat mark))))
 
-(defn printable-board [{:keys [x-moves o-moves] :as board}]
+(defn printable-board [{:keys [x-moves o-moves]}]
   (let [empty-vec-board (vec (repeat 9 '_))]
     (->> (if (empty? x-moves)
            empty-vec-board
@@ -32,10 +31,9 @@
 
 (defn print-board [board]
   (->> (printable-board board)
-       ((fn [printable-board]
-          [(subs printable-board 0 5)
-           (subs printable-board 6 11)
-           (subs printable-board 12)]))
+       (#(vector (subs % 0 5)
+                 (subs % 6 11)
+                 (subs % 12)))
        (#(apply str (interleave % (repeat "\n"))))
        println)
   board)
@@ -54,8 +52,7 @@
                              (interleave (sort available-moves)
                                          (repeat " "))))]
         (if (check-input-is-valid new-move available-moves)
-          (let [next-board (add-move-to-board new-move board)]
-            (print-board next-board))
+          (print-board (add-move-to-board new-move board))
           (recur board))))))
 
 (def computer-start (cycle [computer-play human-play]))
@@ -70,7 +67,7 @@
   (let [init-choice (get-input-as-integer
                      "Here we go:
 Enter 1 to start a new game with Computer starting
-Enter 2 to start a new game with human starting
+Enter 2 to start a new game with Human starting
 Enter 3 to Exit\n")]
     (if (check-input-is-valid init-choice #{1 2 3})
       (case init-choice
