@@ -79,4 +79,5 @@ Enter 3 to Exit\n")]
               (recur))
         2 (do (chain-play human-start empty-board)
               (recur))
-        3 nil))))
+        3 nil)
+      (recur))))
