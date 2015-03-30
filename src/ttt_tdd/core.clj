@@ -32,7 +32,7 @@
        (partition 3)
        (map #(interpose " " %))
        (#(interleave % (repeat "\n")))
-       (map #(apply str %))
+       flatten
        (apply str)
        println)
   board)
