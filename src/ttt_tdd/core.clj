@@ -45,8 +45,7 @@
         new-move (get-input-as-integer
                   (apply str
                          "Please enter a move from these available moves: "
-                         (interleave (sort available-moves)
-                                     (repeat " "))))]
+                         (interpose " " (sort available-moves))))]
     (if (check-input-is-valid new-move available-moves)
       (print-and-return-board (add-move-to-board new-move board))
       (recur board))))
