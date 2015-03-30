@@ -61,26 +61,26 @@ is input. If anything else is encountered, it should recur."
 
 (describe "printable-board"
           (it "should get a printable string for the board"
-              (should= "_ _ _ _ _ _ _ _ _" (printable-board empty-board))
-              (should= "X X X X X X X X X"
+              (should= '[_ _ _ _ _ _ _ _ _] (printable-board empty-board))
+              (should= '[X X X X X X X X X]
                        (printable-board {:x-moves (set (range 1 10))
                                      :o-moves #{}}))
-              (should= "X _ X _ X X _ _ X"
+              (should= '[X _ X _ X X _ _ X]
                        (printable-board {:x-moves #{1 3 5 6 9} :o-moves #{}}))
-              (should= "X O X _ O X _ O X"
+              (should= '[X O X _ O X _ O X]
                        (printable-board  {:x-moves #{1 3 6 9}
                                           :o-moves #{2 5 8}}))))
 
-(describe "print-board"
+(describe "print-and-return-board"
           (it "pretty prints the board in the classic format,
 and returns the board"
               (should= "X O X\n_ O X\n_ O X\n\n"
                        (with-out-str
-                         (print-board {:x-moves #{1 3 6 9}
+                         (print-and-return-board {:x-moves #{1 3 6 9}
                                        :o-moves #{2 5 8}})))
               (should= {:x-moves #{1 3 5}
                         :o-moves #{2 4 7}}
-                       (print-board {:x-moves #{1 3 5}
+                       (print-and-return-board {:x-moves #{1 3 5}
                                      :o-moves #{2 4 7}}))))
 
 (describe "computer-play"

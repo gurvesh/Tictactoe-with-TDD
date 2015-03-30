@@ -25,21 +25,20 @@
            (mark-moves empty-vec-board x-moves 'X))
          (#(if (empty? o-moves)
              %
-             (mark-moves % o-moves 'O)))
-         str
-         (#(subs % 1 (dec (count %)))))))
+             (mark-moves % o-moves 'O))))))
 
-(defn print-board [board]
+(defn print-and-return-board [board]
   (->> (printable-board board)
-       (#(vector (subs % 0 5)
-                 (subs % 6 11)
-                 (subs % 12)))
-       (#(apply str (interleave % (repeat "\n"))))
+       (partition 3)
+       (map #(interpose " " %))
+       (#(interleave % (repeat "\n")))
+       (map #(apply str %))
+       (apply str)
        println)
   board)
 
 (defn computer-play [board]
-  (print-board (next-board board)))
+  (print-and-return-board (next-board board)))
 
 (defn human-play [board]
   (let [available-moves (available-moves board)
@@ -49,7 +48,7 @@
                          (interleave (sort available-moves)
                                      (repeat " "))))]
     (if (check-input-is-valid new-move available-moves)
-      (print-board (add-move-to-board new-move board))
+      (print-and-return-board (add-move-to-board new-move board))
       (recur board))))
 
 (def computer-start (cycle [computer-play human-play]))
