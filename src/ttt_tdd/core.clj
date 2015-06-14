@@ -16,16 +16,16 @@
 
 (defn mark-moves [vec-board moves mark]
   (apply assoc vec-board (interleave (map dec moves)
-                                 (repeat mark))))
+                                     (repeat mark))))
 
 (defn printable-board [{:keys [x-moves o-moves]}]
   (let [empty-vec-board (vec (repeat 9 '_))]
     (->> (if (empty? x-moves)
            empty-vec-board
-           (mark-moves empty-vec-board x-moves 'X))
+           (mark-moves empty-vec-board x-moves 'x))
          (#(if (empty? o-moves)
              %
-             (mark-moves % o-moves 'O))))))
+             (mark-moves % o-moves 'o))))))
 
 (defn print-and-return-board [board]
   (->> (printable-board board)
