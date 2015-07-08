@@ -86,6 +86,3 @@
       wrap-session
       wrap-keyword-params))
 
-(defonce server
-  (jetty/run-jetty #'handler {:port 5000
-                              :join? false}))
