@@ -7,12 +7,9 @@
    [ring.middleware.resource :refer [wrap-resource]]
    [hiccup.core :refer [html]]
    [ttt-tdd.ai :refer [next-board
-                       empty-board
                        add-move-to-board
-                       score-win-or-draw
-                       available-moves]]
-   [net.cgrand.enlive-html :as h]
-   [clojure.set :as sets]))
+                       score-win-or-draw]]
+   [net.cgrand.enlive-html :as h]))
 
 (def start-page
   {:status 200
@@ -21,7 +18,15 @@
           [:a {:href "/computer"} "Start new game with Computer starting"])
    :session {:current-board empty-board}})
 
-(h/defsnippet button "ttt_tdd/button.html" [:form] [] identity)
+(h/defsnippet button "ttt_tdd/button.html"
+  [:button]
+  [id]
+  (h/set-attr :value (str id)))
+
+(h/defsnippet form "ttt_tdd/button.html"
+  [:form]
+  [id]
+  (h/content (button id)))
 
 (h/deftemplate index "ttt_tdd/ttt.html"
   [board]
@@ -30,7 +35,7 @@
              (cond
                ((:x-moves board) id) ((h/set-attr :class "cross") match)
                ((:o-moves board) id) ((h/set-attr :class "nought") match)
-               :else ((h/content (apply (h/set-attr :value (str id)) (button))) match)))))
+               :else ((h/content (form id)) match)))))
 
 (defn computer-page [board]
   (let [new-board (when-not (score-win-or-draw board)
@@ -61,4 +66,6 @@
       wrap-keyword-params
       (wrap-resource "public/css")))
 
-
+(defonce server
+  (jetty/run-jetty #'handler {:port 5000
+                              :join? false}))
