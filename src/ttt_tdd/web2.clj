@@ -31,6 +31,11 @@
   [id]
   (html/content (button id)))
 
+(defn display-if [pred]
+  (if pred
+    identity
+    (html/content nil)))
+
 (html/deftemplate play-html "ttt_tdd/ttt.html"
   [board]
   [:div] (fn [match]
@@ -39,15 +44,15 @@
                ((:x-moves board) id) ((html/set-attr :class "cross") match)
                ((:o-moves board) id) ((html/set-attr :class "nought") match)
                :else ((html/content (form id)) match))))
-  [:#restart] (fn [match]
-                (if (score-win-or-draw board)
-                  (identity match)
-                  ((html/content nil) match))))
+  [:#restart] (display-if (score-win-or-draw board))
+  [:#lose] (display-if (= 1 (score-win-or-draw board)))
+  [:#draw] (display-if (= 0 (score-win-or-draw board))))
 
 (defn play-page [board computer-starting?]
   (let [new-board (cond
                     (score-win-or-draw board) board
-                    (and (not computer-starting?)(= board empty-board)) empty-board
+                    (and (not computer-starting?)
+                         (= board empty-board)) empty-board
                     :else (next-board board))]
     {:status 200
      :body (apply str (play-html new-board))

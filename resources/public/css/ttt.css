@@ -1,3 +1,6 @@
+* {
+    text-align: center;
+}
 div {
     border: 2px dashed black;
     width: 100px;
@@ -15,16 +18,10 @@ table {
 .nought {
     background-image: url("nought.jpg");
 }
-h2 {
-    text-align: center;
-}
 button {
     width: 100px;
     height: 100px;
     background-color: white;
     border: none;
     box-shadow: none;
-}
-#restart {
-    text-align: center;
 }
