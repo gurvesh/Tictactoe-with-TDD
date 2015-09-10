@@ -1,3 +1,6 @@
+;; This file was in Hiccup - no longer used. The file web2 is the one
+;; being used with Enlive
+
 (ns ttt-tdd.web
   (:require
    [ring.adapter.jetty :as jetty]

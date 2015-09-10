@@ -1,3 +1,5 @@
+;; Text based command line interface
+
 (ns ttt-tdd.core
   (:require [ttt-tdd.ai :refer [empty-board
                                 next-board

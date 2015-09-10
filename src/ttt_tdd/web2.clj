@@ -1,3 +1,5 @@
+;; Final html interface - uses Enlive!
+
 (ns ttt-tdd.web2
   (:require
    [ring.adapter.jetty :as jetty]
