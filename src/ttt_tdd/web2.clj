@@ -14,7 +14,7 @@
                        available-moves]]
    [net.cgrand.enlive-html :as html]))
 
-(html/deftemplate start-html "ttt_tdd/start.html" [] [:html] identity)
+(html/deftemplate start-html "ttt_tdd/start.html" [])
 
 (def start-page
   {:status 200
