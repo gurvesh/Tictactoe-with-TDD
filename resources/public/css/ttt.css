@@ -25,3 +25,6 @@ button {
     border: none;
     box-shadow: none;
 }
+#restart {
+    text-align: center;
+}
