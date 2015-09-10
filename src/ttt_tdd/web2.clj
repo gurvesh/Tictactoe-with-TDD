@@ -10,8 +10,7 @@
    [ttt-tdd.ai :refer [empty-board
                        next-board
                        add-move-to-board
-                       score-win-or-draw
-                       available-moves]]
+                       score-win-or-draw]]
    [net.cgrand.enlive-html :as html]))
 
 (html/deftemplate start-html "ttt_tdd/start.html" [])
