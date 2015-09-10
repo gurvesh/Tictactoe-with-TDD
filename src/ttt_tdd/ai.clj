@@ -55,6 +55,9 @@
 (defn next-board [board]
   (if (score-win-or-draw board)
     :game-over
-    (->> (mem-next-scored-boards board)
-         (apply max-key :score)
-         :board)))
+    (let [all-boards (mem-next-scored-boards board)
+          max-score (:score (apply max-key :score all-boards))
+          all-boards-with-max-score (filter #(= max-score
+                                                (:score %))
+                                            all-boards)]
+      (:board (rand-nth all-boards-with-max-score)))))

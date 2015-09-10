@@ -42,7 +42,7 @@
   [:#restart] (fn [match]
                 (if (score-win-or-draw board)
                   (identity match)
-                  ((html/set-attr :visibility "hidden") match))))
+                  ((html/content nil) match))))
 
 (defn play-page [board computer-starting?]
   (let [new-board (cond
@@ -75,4 +75,3 @@
       wrap-session
       wrap-keyword-params
       (wrap-resource "public/css")))
-
