@@ -32,7 +32,10 @@
               (should= {:x-moves #{1 3 5 9} :o-moves #{2 4 7}}
                        (next-board {:x-moves #{1 3 5} :o-moves #{2 4 7}}))
 
-              (should= (next-board {:x-moves #{1 3 5} :o-moves #{2 4 6}})
+              ;; Because of randomisation the following is no longer
+              ;; always true
+              
+              #_(should= (next-board {:x-moves #{1 3 5} :o-moves #{2 4 6}})
                        (next-board {:x-moves #{5 3 1} :o-moves #{4 2 6}}))))
 
 (describe "get-input-as-integer"
@@ -62,19 +65,19 @@ is input. If anything else is encountered, it should recur."
 (describe "printable-board"
           (it "should get a printable string for the board"
               (should= '[_ _ _ _ _ _ _ _ _] (printable-board empty-board))
-              (should= '[X X X X X X X X X]
+              (should= '[x x x x x x x x x]
                        (printable-board {:x-moves (set (range 1 10))
                                      :o-moves #{}}))
-              (should= '[X _ X _ X X _ _ X]
+              (should= '[x _ x _ x x _ _ x]
                        (printable-board {:x-moves #{1 3 5 6 9} :o-moves #{}}))
-              (should= '[X O X _ O X _ O X]
+              (should= '[x o x _ o x _ o x]
                        (printable-board  {:x-moves #{1 3 6 9}
                                           :o-moves #{2 5 8}}))))
 
 (describe "print-and-return-board"
           (it "pretty prints the board in the classic format,
 and returns the board"
-              (should= "X O X\n_ O X\n_ O X\n\n"
+              (should= "x o x\n_ o x\n_ o x\n\n"
                        (with-out-str
                          (print-and-return-board {:x-moves #{1 3 6 9}
                                        :o-moves #{2 5 8}})))
@@ -92,7 +95,7 @@ and returns the board"
                         :o-moves #{2 4 7}}
                        (computer-play {:x-moves #{1 3 5}
                                               :o-moves #{2 4 7}}))
-              (should= "X O X\nO X _\nO _ X\n\n"
+              (should= "x o x\no x _\no _ x\n\n"
                        (with-out-str
                          (computer-play {:x-moves #{1 3 5}
                                                 :o-moves #{2 4 7}})))))
