@@ -15,7 +15,7 @@
 
 (html/deftemplate start-html "ttt_tdd/start.html" [])
 
-(defn start-page [{:keys [score]}]
+(defn start-page [score]
   {:status 200
    :body (start-html)
    
@@ -96,7 +96,7 @@
                     (Integer. (get params "new-move")))
         new-board (add-move-to-board new-move current-board)]
     (case uri
-      "/" (start-page session)
+      "/" (start-page score)
       "/computer" (play new-board score true) ;; Computer goes first
       "/human" (play new-board score false)))) ;; Computer goes second
 
