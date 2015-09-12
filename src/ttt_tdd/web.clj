@@ -1,5 +1,4 @@
-;; This file was in Hiccup - no longer used. The file web2 is the one
-;; being used with Enlive
+;; Final html interface - uses Enlive!
 
 (ns ttt-tdd.web
   (:require
@@ -7,84 +6,103 @@
    [ring.middleware.params :refer [wrap-params]]
    [ring.middleware.keyword-params :refer [wrap-keyword-params]]
    [ring.middleware.session :refer [wrap-session]]
-   [hiccup.core :refer [html]]
-   [hiccup.form :refer [form-to
-                        text-field
-                        submit-button
-                        drop-down]]
-   [ttt-tdd.ai :refer [next-board
-                       empty-board
+   [ring.middleware.resource :refer [wrap-resource]]
+   [ttt-tdd.ai :refer [empty-board
+                       next-board
                        add-move-to-board
-                       score-win-or-draw
-                       available-moves]]
-   [ttt-tdd.core :refer [print-and-return-board]]))
+                       score-win-or-draw]]
+   [net.cgrand.enlive-html :as html]))
 
-(def start-page
+(html/deftemplate start-html "ttt_tdd/start.html" [])
+
+(defn start-page [{:keys [score]}]
   {:status 200
-   :body (html
-           [:p "Click one of the two links to get started"]
-           [:a {:href "/computer"} "Start new game with Computer starting"]
-           [:br]
-           [:a {:href "/human"} "Start new game with Human starting"])
-   :session {:current-board empty-board}})
+   :body (start-html)
+   
+   ;; Always reset board but only reset score at start of session
+   :session {:current-board empty-board 
+             :score (or score 
+                        {:draws 0 :losses 0})}})
 
-(defn- split-into-rows [board]
-  (-> (print-and-return-board board)
-      with-out-str
-      (clojure.string/split #"[\n]")
-      (#(interleave [:p [:br] [:br]] %))
-      vec))
+(html/defsnippet button "ttt_tdd/button.html"
+  [:button]
+  [loc]
+  (html/set-attr :value (str loc)))
 
-(defn submit-move-form [board]
-  (form-to [:post "/computer"]
-           (drop-down "new-move" (sort (available-moves board)))
-           (submit-button "Next move")))
+(html/defsnippet form "ttt_tdd/button.html"
+  [:form]
+  [loc]
+  (html/content (button loc)))
 
-(defn computer-page [board]
-  (let [new-board (when-not (score-win-or-draw board)
-                    (next-board board))]
+(defn display-if [pred]
+  (if pred identity (html/content nil)))
+
+(html/deftemplate play-html "ttt_tdd/ttt.html"
+  [board score]
+  [:div] (fn [match]
+           (let [loc (Integer. (first (html/attr-values match :data-loc)))]
+             (cond
+               ;; If the location is part of x-moves, change the class
+               ;; to cross and let the css do the rest
+               ((:x-moves board) loc) ((html/set-attr :class "cross") match)
+
+               ;; Same for o-moves, change the class to nought
+               ((:o-moves board) loc) ((html/set-attr :class "nought") match)
+
+               ;; If game's over then don't show anything (no form on
+               ;; any loc - which could change the state if
+               ;; accidentally clicked - for good score-keeping)
+               (score-win-or-draw board) ((html/content nil) match)
+
+               ;; Otherwise present a button/form with the
+               ;; location's value to be submitted
+               :else ((html/content (form loc)) match))))
+  
+  [:#restart] (display-if (score-win-or-draw board))
+  [:#lose] (display-if (= 1 (score-win-or-draw board)))
+  [:#draw] (display-if (= 0 (score-win-or-draw board)))
+  [:p#losses] (html/content (str "Lost " (:losses score)))
+  [:p#draws] (html/content (str "Draws " (:draws score))))
+
+(defn play [board score computer-starting?]
+  (let [new-board (cond
+                    ;; When you go second and you finish the game
+                    (score-win-or-draw board) board
+
+                    ;; When you go first
+                    (and (not computer-starting?) 
+                         (= board empty-board)) empty-board
+
+                    ;; Otherwise get the AI to produce a new board     
+                    :else (next-board board))
+        new-score (condp = (score-win-or-draw new-board)
+                    ;; See if computer's won or drawn, otherwise keep
+                    ;; the same score
+                    0 (update score :draws inc)
+                    1 (update score :losses inc)
+                    score)]
     {:status 200
-     :body (html
-             [:p "I received this board:"]
-             (split-into-rows board)
-             [:br]
-             (when-not (score-win-or-draw board)
-               [:p "Here's a board for you after my move:"])
-             (when-not (score-win-or-draw board)
-               (split-into-rows new-board))
-             [:br]
-             (if (or (score-win-or-draw board)
-                     (score-win-or-draw new-board))
-               [:p "Game Over" [:br]
-                [:a {:href "/"} "Go back to main menu to start a new game"]]
-               (submit-move-form new-board)))
-     :session {:current-board new-board}}))
+     :body (apply str (play-html new-board new-score))
+     :session {:current-board new-board
+               :score new-score}}))
 
-(defn human-page [board]
-  {:status 200
-   :body (html
-           [:p "Make the first move"]
-           (split-into-rows empty-board)
-           (submit-move-form board))})
+(defn main-handler [{:keys [session params uri]}]
+  (let [current-board (:current-board session)
+        score (:score session)
 
-(defn main-handler [{:keys [session
-                            params
-                            uri]
-                     :as request}]
-  (let [current-board (or (:current-board session)
-                          empty-board)
-        new-move  (when (get params "new-move")
+        ;; To prevent converting null at session start, check if a
+        ;; move's been made yet
+        new-move  (when (get params "new-move") 
                     (Integer. (get params "new-move")))
-        new-board (if (score-win-or-draw current-board)
-                    current-board
-                    (add-move-to-board new-move current-board))]
+        new-board (add-move-to-board new-move current-board)]
     (case uri
-      "/" start-page
-      "/computer" (computer-page new-board)
-      "/human" (human-page current-board))))
+      "/" (start-page session)
+      "/computer" (play new-board score true) ;; Computer goes first
+      "/human" (play new-board score false)))) ;; Computer goes second
 
 (def handler
   (-> main-handler
       wrap-params
       wrap-session
-      wrap-keyword-params))
+      wrap-keyword-params
+      (wrap-resource "public/css")))
