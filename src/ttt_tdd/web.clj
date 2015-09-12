@@ -66,10 +66,10 @@
 
 (defn play [board score computer-starting?]
   (let [new-board (cond
-                    ;; When you go second and you finish the game
+                    ;; When you go first and you finish the game
                     (score-win-or-draw board) board
 
-                    ;; When you go first
+                    ;; When you go first and its the first move
                     (and (not computer-starting?) 
                          (= board empty-board)) empty-board
 
