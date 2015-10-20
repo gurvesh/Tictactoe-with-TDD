@@ -1,6 +1,7 @@
 (ns ttt-tdd.ai2
   (:require [clojure.repl :refer :all]
-            [clojure.set :as sets]))
+            [clojure.set :as sets]
+            [ttt-tdd.core :refer [mark-moves]]))
 
 (def empty-board {:x-moves #{}
                   :o-moves #{}})
@@ -39,18 +40,12 @@
 (defn add-move-to-board [move {:keys [x-moves o-moves] :as board}]
   (cond
     (nil? move) board
-    (= (count x-moves) (count o-moves))  {:x-moves (conj x-moves move)
-                                          :o-moves o-moves}
-    :else {:x-moves x-moves
-           :o-moves (conj o-moves move)}))
+    (= (count x-moves) (count o-moves)) (update board :x-moves conj move)
+    :else (update board :o-moves conj move)))
 
 (defn all-next-boards [{:keys [x-moves o-moves] :as board}]
   (for [a (available-moves board)]
     (add-move-to-board a board)))
-
-(defn mark-moves [vec-board moves mark]
-  (apply assoc vec-board (interleave (map dec moves)
-                                     (repeat mark))))
 
 (defn line-board [{:keys [x-moves o-moves]}]
   (let [empty-vec-board (vec (repeat (* board-size board-size) '_))]
