@@ -43,7 +43,7 @@
   (for [a-board (all-next-boards board)]
     {:board a-board
      :score (if-let [win-or-draw (score-win-or-draw a-board)]
-              (* (inc (count (available-moves board)))
+              (* (inc (count (available-moves a-board)))
                  win-or-draw)
               (->> (mem-next-scored-boards a-board)
                    (apply max-key :score)
