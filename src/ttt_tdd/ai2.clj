@@ -109,7 +109,6 @@
 
 (defn next-scored-boards [board achievable cutoff]
   (loop [remaining-boards (all-next-boards board)
-         best-board (first remaining-boards)
          achievable achievable
          results {}]
     (if (nil? remaining-boards)
@@ -123,11 +122,9 @@
         (cond
           (>= achievable cutoff) new-results
           (> score achievable) (recur (next remaining-boards)
-                                      current-board
                                       score
                                       new-results)
           :else (recur (next remaining-boards)
-                       best-board
                        achievable
                        new-results))))))
 
@@ -136,7 +133,7 @@
     (swap! scored-boards-in-matrix-form empty)
     (cond
       (score-win-or-draw board) :game-over
-                                        ;(= empty-board board) (update board :x-moves conj (rand-nth all-moves))
+      (= empty-board board) (update board :x-moves conj (rand-nth all-moves))
       :else (let [all-boards (next-scored-boards board -1000 1000)
                   max-score (val (apply max-key val all-boards))
                   all-boards-with-max-score (filter #(= max-score

@@ -10,7 +10,7 @@
   :profiles {:dev {:dependencies [[speclj "3.3.1"]]}}
   :plugins [[speclj "3.3.1"]
             [lein-ring "0.9.6"]]
-  :ring {:handler ttt-tdd.web/handler}
+  :ring {:handler ttt-tdd.web2/handler}
   :test-paths ["spec"]
   ;; :jvm-opts ["-Xms2G" "-Xmx4g"]
   :main ^:skip-aot ttt-tdd.core)
