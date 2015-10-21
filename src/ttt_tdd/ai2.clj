@@ -76,30 +76,29 @@
         (recur (rotate-right current-board)
                (dec n))))))
 
-(defn score-from-similar-board [board]
-  (let [mat-board (matrix-board board)
-        mirror-mat-board (map reverse mat-board)]
+(defn score-from-similar-board [mat-board]
+  (let [mirror-mat-board (map reverse mat-board)]
     (or
      (score-from-rotated-board mat-board)
      (score-from-rotated-board mirror-mat-board))))
 
-(defn get-easy-score [board]
+(defn get-easy-score [board mat-board]
   (or
    (score-win-or-draw board)
-   (score-from-similar-board board)))
+   (score-from-similar-board mat-board)))
 
-(defn store-matrix-board-and-score [board score]
+(defn store-matrix-board-and-score [mat-board score]
   (swap! scored-boards-in-matrix-form
-         assoc (matrix-board board) score))
+         assoc mat-board score))
 
 (declare alpha-beta-pruned-boards)
 
-(defn minimax-and-store-result [board achievable cutoff]
+(defn minimax-and-store-result [board mat-board achievable cutoff]
   (let [boards-not-pruned (alpha-beta-pruned-boards board achievable cutoff)
         score (->> (apply max-key val boards-not-pruned)
                    val
                    -)]
-    (store-matrix-board-and-score board score)
+    (store-matrix-board-and-score mat-board score)
     score))
 
 (defn alpha-beta-pruned-boards [board achievable cutoff]
@@ -107,8 +106,10 @@
          achievable achievable
          results {}]
     (let [current-board (first remaining-boards)
-          score (or (get-easy-score current-board)
+          mat-board (matrix-board current-board)
+          score (or (get-easy-score current-board mat-board)
                     (minimax-and-store-result current-board
+                                              mat-board
                                               (- cutoff)
                                               (- achievable)))
           new-results (conj results [current-board score])]
