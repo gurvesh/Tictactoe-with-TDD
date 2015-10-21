@@ -78,9 +78,9 @@
         new-score (condp = (score-win-or-draw new-board)
                     ;; See if computer's won or drawn, otherwise keep
                     ;; the same score
+                    nil score
                     0 (update score :draws inc)
-                    1 (update score :losses inc)
-                    score)]
+                    (update score :losses inc))]
     {:status 200
      :body (apply str (play-html new-board new-score))
      :session {:current-board new-board
