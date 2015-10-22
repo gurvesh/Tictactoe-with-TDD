@@ -91,47 +91,39 @@
   (swap! scored-boards-in-matrix-form
          assoc mat-board score))
 
-(declare alpha-beta-pruned-boards)
+(declare alpha-beta-minimax)
 
-(defn minimax-and-store-result [board mat-board achievable cutoff]
-  (let [boards-not-pruned (alpha-beta-pruned-boards board achievable cutoff)
-        score (->> (apply max-key val boards-not-pruned)
-                   val
-                   -)]
+(defn score-and-store-result [board mat-board achievable cutoff]
+  (let [score (second (alpha-beta-minimax board achievable cutoff))]
     (store-matrix-board-and-score mat-board score)
-    score))
+    (- score)))
 
-(defn alpha-beta-pruned-boards [board achievable cutoff]
+(defn alpha-beta-minimax [board achievable cutoff]
   (loop [remaining-boards (all-next-boards board)
          achievable achievable
-         results {}]
-    (if (> achievable cutoff)
-      results
+         best-board (first remaining-boards)]
+    (if (or  (nil? remaining-boards)
+             (>= achievable cutoff))
+      [best-board achievable]
       (let [current-board (first remaining-boards)
             mat-board (matrix-board current-board)
             score (or (get-easy-score current-board mat-board)
-                      (minimax-and-store-result current-board
-                                                mat-board
-                                                (- cutoff)
-                                                (- achievable)))
-            new-results (conj results [current-board score])]
-        (if
-          (nil? (next remaining-boards)) new-results
-          (recur (next remaining-boards)
-                       (if (> score achievable) score achievable)
-                       new-results))))))
+                      (score-and-store-result current-board
+                                              mat-board
+                                              (- cutoff)
+                                              (- achievable)))]
+        (recur (next remaining-boards)
+               (if (> score achievable) score achievable)
+               (if (> score achievable) current-board best-board))))))
 
 (defn next-board [{:keys [x-moves o-moves] :as board}]
-  (cond
-    (score-win-or-draw board) :game-over
+  (do
+    (swap! scored-boards-in-matrix-form empty)
+    (cond
+      (score-win-or-draw board) :game-over
 
-    (and (> board-size 3)
-         (> ((comp count available-moves) board) 12))
-    (add-move-to-board (rand-nth (seq (available-moves board))) board)
+      (and (> board-size 3)
+           (> ((comp count available-moves) board) 12))
+      (add-move-to-board (rand-nth (seq (available-moves board))) board)
 
-    :else (let [all-boards (alpha-beta-pruned-boards board -1000 1000)
-                max-score (val (apply max-key val all-boards))
-                all-boards-with-max-score (filter #(= max-score
-                                                      (val %))
-                                                  all-boards)]
-            (key (rand-nth all-boards-with-max-score)))))
+      :else (first (alpha-beta-minimax board -1000 1000)))))
