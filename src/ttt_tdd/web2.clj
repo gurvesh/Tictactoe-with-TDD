@@ -59,7 +59,7 @@
                :else ((html/content (form loc)) match))))
   
   [:#restart] (display-if (score-win-or-draw board))
-  [:#lose] (display-if (= 1 (score-win-or-draw board)))
+  [:#lose] (display-if (> 0 (score-win-or-draw board)))
   [:#draw] (display-if (= 0 (score-win-or-draw board)))
   [:p#losses] (html/content (str "Lost " (:losses score)))
   [:p#draws] (html/content (str "Draws " (:draws score))))
