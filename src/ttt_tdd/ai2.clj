@@ -105,30 +105,33 @@
   (loop [remaining-boards (all-next-boards board)
          achievable achievable
          results {}]
-    (let [current-board (first remaining-boards)
-          mat-board (matrix-board current-board)
-          score (or (get-easy-score current-board mat-board)
-                    (minimax-and-store-result current-board
-                                              mat-board
-                                              (- cutoff)
-                                              (- achievable)))
-          new-results (conj results [current-board score])]
-      (if (or (>= achievable cutoff)
-              (nil? (next remaining-boards)))
-        new-results
-        (recur (next remaining-boards)
-               (if (> score achievable) score achievable)
-               new-results)))))
+    (if (> achievable cutoff)
+      results
+      (let [current-board (first remaining-boards)
+            mat-board (matrix-board current-board)
+            score (or (get-easy-score current-board mat-board)
+                      (minimax-and-store-result current-board
+                                                mat-board
+                                                (- cutoff)
+                                                (- achievable)))
+            new-results (conj results [current-board score])]
+        (if
+          (nil? (next remaining-boards)) new-results
+          (recur (next remaining-boards)
+                       (if (> score achievable) score achievable)
+                       new-results))))))
 
-(defn next-board [board]
-  (do
-    (swap! scored-boards-in-matrix-form empty)
-    (cond
-      (score-win-or-draw board) :game-over
-      (= empty-board board) (update board :x-moves conj (rand-nth all-moves))
-      :else (let [all-boards (alpha-beta-pruned-boards board -1000 1000)
-                  max-score (val (apply max-key val all-boards))
-                  all-boards-with-max-score (filter #(= max-score
-                                                        (val %))
-                                                    all-boards)]
-              (key (rand-nth all-boards-with-max-score))))))
+(defn next-board [{:keys [x-moves o-moves] :as board}]
+  (cond
+    (score-win-or-draw board) :game-over
+
+    (and (> board-size 3)
+         (> ((comp count available-moves) board) 12))
+    (add-move-to-board (rand-nth (seq (available-moves board))) board)
+
+    :else (let [all-boards (alpha-beta-pruned-boards board -1000 1000)
+                max-score (val (apply max-key val all-boards))
+                all-boards-with-max-score (filter #(= max-score
+                                                      (val %))
+                                                  all-boards)]
+            (key (rand-nth all-boards-with-max-score)))))
