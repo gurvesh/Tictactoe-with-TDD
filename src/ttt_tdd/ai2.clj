@@ -93,37 +93,37 @@
 
 (declare alpha-beta-minimax)
 
-(defn score-and-store-result [board mat-board achievable cutoff]
-  (let [score (second (alpha-beta-minimax board achievable cutoff))]
-    (store-matrix-board-and-score mat-board score)
-    (- score)))
+(defn score-and-store-result [board achievable cutoff]
+  (let [mat-board (matrix-board board)]
+    (or
+     (get-easy-score board mat-board)
+     (let [score (-> board
+                     all-next-boards
+                     (alpha-beta-minimax (- cutoff) (- achievable))
+                     second
+                     -)]
+       (store-matrix-board-and-score mat-board score)
+       score))))
 
-(defn alpha-beta-minimax [board achievable cutoff]
-  (loop [remaining-boards (all-next-boards board)
+(defn alpha-beta-minimax [boards achievable cutoff]
+  (loop [boards boards
          achievable achievable
-         best-board (first remaining-boards)]
-    (if (or  (nil? remaining-boards)
+         best-board (first boards)]
+    (if (or  (nil? boards)
              (>= achievable cutoff))
       [best-board achievable]
-      (let [current-board (first remaining-boards)
-            mat-board (matrix-board current-board)
-            score (or (get-easy-score current-board mat-board)
-                      (score-and-store-result current-board
-                                              mat-board
-                                              (- cutoff)
-                                              (- achievable)))]
-        (recur (next remaining-boards)
+      (let [current-board (first boards)
+            score (score-and-store-result current-board achievable cutoff)]
+        (recur (next boards)
                (if (> score achievable) score achievable)
                (if (> score achievable) current-board best-board))))))
 
 (defn next-board [{:keys [x-moves o-moves] :as board}]
-  (do
-    (swap! scored-boards-in-matrix-form empty)
-    (cond
-      (score-win-or-draw board) :game-over
+  (cond
+    (score-win-or-draw board) :game-over
 
-      (and (> board-size 3)
-           (> ((comp count available-moves) board) 12))
-      (add-move-to-board (rand-nth (seq (available-moves board))) board)
+    (and (> board-size 3)
+         (> ((comp count available-moves) board) 12))
+    (add-move-to-board (rand-nth (seq (available-moves board))) board)
 
-      :else (first (alpha-beta-minimax board -1000 1000)))))
+    :else (first (alpha-beta-minimax (all-next-boards board) -1000 1000))))
