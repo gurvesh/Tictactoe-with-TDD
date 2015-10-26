@@ -5,8 +5,8 @@
 (def scored-boards-in-matrix-form (atom {}))
 
 (defn- check-player-wins [{:keys [x-moves o-moves]}]
-  (or (some #(sets/subset? % x-moves) wins)
-      (some #(sets/subset? % o-moves) wins)))
+  (or (some #(sets/subset? % x-moves) (mem-wins))
+      (some #(sets/subset? % o-moves) (mem-wins))))
 
 (defn- draw? [board]
   (empty? (available-moves board)))

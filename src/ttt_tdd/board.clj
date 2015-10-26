@@ -18,7 +18,8 @@
                     [(take @board-size (iterate #(+ (inc @board-size) %) 1))
                      (take @board-size (iterate #(+ (dec @board-size) %) @board-size))]))
 
-(def wins  (concat row-wins col-wins diag-wins))
+(defn wins [] (concat row-wins col-wins diag-wins))
+(def mem-wins (memoize wins))
 
 (defn available-moves [{:keys [x-moves o-moves]}]
   (sets/difference (set all-moves) x-moves o-moves))
@@ -52,3 +53,10 @@
 
 (defn rotate-right [mat-board]
   (map reverse (apply map list mat-board)))
+
+(defn pb [board]
+  (->> board
+       matrix-board
+       seq
+       (interpose "\n")
+       println))
