@@ -7,10 +7,10 @@
    [ring.middleware.keyword-params :refer [wrap-keyword-params]]
    [ring.middleware.session :refer [wrap-session]]
    [ring.middleware.resource :refer [wrap-resource]]
-   [ttt-tdd.ai :refer [empty-board
-                       next-board
-                       add-move-to-board
-                       score-win-or-draw]]
+   [ttt-tdd.board :refer [empty-board
+                          add-move-to-board]]
+   [ttt-tdd.ai :refer [score-win-or-draw
+                       next-board]]
    [net.cgrand.enlive-html :as html]))
 
 (html/deftemplate start-html "ttt_tdd/start.html" [])
@@ -37,7 +37,7 @@
 (defn display-if [pred]
   (if pred identity (html/content nil)))
 
-(html/deftemplate play-html "ttt_tdd/ttt.html"
+(html/deftemplate play-html "ttt_tdd/ttt2.html"
   [board score]
   [:div] (fn [match]
            (let [loc (Integer. (first (html/attr-values match :data-loc)))]
@@ -59,7 +59,8 @@
                :else ((html/content (form loc)) match))))
   
   [:#restart] (display-if (score-win-or-draw board))
-  [:#lose] (display-if (= 1 (score-win-or-draw board)))
+  [:#lose] (display-if (and (score-win-or-draw board)
+                            (< 0 (score-win-or-draw board))))
   [:#draw] (display-if (= 0 (score-win-or-draw board)))
   [:p#losses] (html/content (str "Lost " (:losses score)))
   [:p#draws] (html/content (str "Draws " (:draws score))))
@@ -78,9 +79,9 @@
         new-score (condp = (score-win-or-draw new-board)
                     ;; See if computer's won or drawn, otherwise keep
                     ;; the same score
+                    nil score
                     0 (update score :draws inc)
-                    1 (update score :losses inc)
-                    score)]
+                    (update score :losses inc))]
     {:status 200
      :body (apply str (play-html new-board new-score))
      :session {:current-board new-board

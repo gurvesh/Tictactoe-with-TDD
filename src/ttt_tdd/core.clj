@@ -1,11 +1,13 @@
 ;; Text based command line interface
 
 (ns ttt-tdd.core
-  (:require [ttt-tdd.ai :refer [empty-board
-                                next-board
-                                available-moves
-                                add-move-to-board
-                                score-win-or-draw]]))
+  (:require [ttt-tdd.board :refer [empty-board
+                                   available-moves
+                                   add-move-to-board
+                                   board-size
+                                   line-board]]
+            [ttt-tdd.ai :refer [score-win-or-draw
+                                next-board]]))
 
 (defn get-input-as-integer [prompt-string]
   (try (do (println prompt-string)
@@ -16,22 +18,9 @@
 (defn check-input-is-valid [input all-choices]
   (some all-choices [input]))
 
-(defn mark-moves [vec-board moves mark]
-  (apply assoc vec-board (interleave (map dec moves)
-                                     (repeat mark))))
-
-(defn printable-board [{:keys [x-moves o-moves]}]
-  (let [empty-vec-board (vec (repeat 9 '_))]
-    (->> (if (empty? x-moves)
-           empty-vec-board
-           (mark-moves empty-vec-board x-moves 'x))
-         (#(if (empty? o-moves)
-             %
-             (mark-moves % o-moves 'o))))))
-
 (defn print-and-return-board [board]
-  (->> (printable-board board)
-       (partition 3)
+  (->> (line-board board)
+       (partition @board-size)
        (map #(interpose " " %))
        (#(interleave % (repeat "\n")))
        flatten
