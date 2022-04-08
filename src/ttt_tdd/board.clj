@@ -4,7 +4,7 @@
 (def empty-board {:x-moves #{}
                   :o-moves #{}})
 
-(def board-size (atom 4))
+(def board-size (atom 3))
 
 (def all-moves (range 1 (inc (* @board-size @board-size))))
 (def row-wins (->> all-moves

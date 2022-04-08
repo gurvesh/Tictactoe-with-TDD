@@ -37,7 +37,7 @@
 (defn display-if [pred]
   (if pred identity (html/content nil)))
 
-(html/deftemplate play-html "ttt_tdd/ttt2.html"
+(html/deftemplate play-html "ttt_tdd/ttt.html"
   [board score]
   [:div] (fn [match]
            (let [loc (Integer. (first (html/attr-values match :data-loc)))]

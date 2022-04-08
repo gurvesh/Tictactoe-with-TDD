@@ -3,13 +3,13 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.7.0"]
-                 [ring/ring-core "1.3.2"]
-                 [ring/ring-jetty-adapter "1.3.2"]
+  :dependencies [[org.clojure/clojure "1.11.1"]
+                 [ring/ring-core "1.9.5"]
+                 [ring/ring-jetty-adapter "1.9.5"]
                  [enlive "1.1.6"]]
   :profiles {:dev {:dependencies [[speclj "3.3.1"]]}}
   :plugins [[speclj "3.3.1"]
-            [lein-ring "0.9.6"]]
+            [lein-ring "0.12.6"]]
   :ring {:handler ttt-tdd.web/handler}
   :test-paths ["spec"]
   ;; :jvm-opts ["-Xms2G" "-Xmx4g"]
